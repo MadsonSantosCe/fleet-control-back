@@ -2,6 +2,7 @@
 CREATE TABLE "Truck" (
     "id" SERIAL NOT NULL,
     "licensePlate" TEXT NOT NULL,
+    "model" TEXT NOT NULL,
 
     CONSTRAINT "Truck_pkey" PRIMARY KEY ("id")
 );

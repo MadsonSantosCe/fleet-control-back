@@ -1,31 +1,14 @@
 import { prisma } from "../utils/prisma";
-
-export type DeliveryInput = {
-  type: string;
-  value: number;
-  destination: string;
-  deliveryTime: Date;
-  truckId: number;
-  driverId: number;
-  insurance?: boolean;
-  dangerous?: boolean;
-  valuable?: boolean;
-};
-
-const applyDefaultBooleanValues = (input: DeliveryInput) => ({
-  ...input,
-  insurance: input.insurance ?? false,
-  dangerous: input.dangerous ?? false,
-  valuable: input.valuable ?? false,
-});
+import { DeliveryInput } from "../interfaces/delivery";
+import { applyDefaultBooleanValues } from "../utils/functions";
 
 export const createDeliveryAsync = async (input: DeliveryInput) => {
   const deliveryData = applyDefaultBooleanValues(input);
 
   const newDelivery = await prisma.delivery.create({
-      data: {
-          ...deliveryData,
-      },
+    data: {
+      ...deliveryData,
+    },
   });
 
   return newDelivery;
@@ -49,10 +32,10 @@ export const updateDeliveryAsync = async (id: number, input: DeliveryInput) => {
   const deliveryData = applyDefaultBooleanValues(input);
 
   const updatedDelivery = await prisma.delivery.update({
-      where: { id },
-      data: {
-          ...deliveryData,
-      },
+    where: { id },
+    data: {
+      ...deliveryData,
+    },
   });
 
   return updatedDelivery;

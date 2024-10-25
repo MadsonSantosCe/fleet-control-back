@@ -1,8 +1,8 @@
 import { prisma } from "../utils/prisma";
 
-export const createTruckAsync = async (licensePlate: string) => {
+export const createTruckAsync = async (licensePlate: string, model: string) => {
     return await prisma.truck.create({
-        data: { licensePlate },
+        data: { licensePlate, model },
     });
 };
 
@@ -19,10 +19,10 @@ export const getTruckByIdAsync = async (id: string) => {
     });
 };
 
-export const updateTruckAsync = async (id: string, licensePlate: string) => {
+export const updateTruckAsync = async (id: string, licensePlate: string, model: string) => {
     return await prisma.truck.update({
         where: { id: Number(id) },
-        data: { licensePlate },
+        data: { licensePlate, model },
     });
 };
 

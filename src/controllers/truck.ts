@@ -17,8 +17,8 @@ export const createTruck = async (req: Request, res: Response): Promise<Response
       return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     }
 
-    const { licensePlate } = safeData.data;
-    const newTruck = await createTruckAsync(licensePlate);
+    const { licensePlate, model } = safeData.data;
+    const newTruck = await createTruckAsync(licensePlate, model);
 
     return res.status(201).json(newTruck);
 
@@ -64,8 +64,8 @@ export const updateTruck = async (req: Request, res: Response): Promise<Response
       return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     }
 
-    const { licensePlate } = safeData.data;
-    const updatedTruck = await updateTruckAsync(id, licensePlate);
+    const { licensePlate, model } = safeData.data;
+    const updatedTruck = await updateTruckAsync(id, licensePlate, model);
 
     return res.status(200).json(updatedTruck);
 

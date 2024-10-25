@@ -16,6 +16,7 @@ datasource db {
 model Truck {
   id          Int       @id @default(autoincrement())
   licensePlate String    @unique
+  model        String
   deliveries  Delivery[]
 }
 
