@@ -7,7 +7,6 @@ import {
     getAllDeliveriesAsync,
     updateDeliveryAsync,
 } from '../services/delivery';
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -26,7 +25,8 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
 
     } catch (error: any) {
         if (error.code === 'P2003') {
-            return res.status(400).json({ message: 'Caminhão ou motorista não encontrados' });
+            const target = error.meta?.field_name?.includes("truckId") ? "Caminhão" : "Motorista";
+            return res.status(400).json({ message: `${target} não encontrado` });
         }
         return res.status(500).json({ message: 'Erro ao criar entrega' });
     }
@@ -74,7 +74,8 @@ export const updateDelivery = async (req: Request, res: Response): Promise<Respo
 
     } catch (error: any) {
         if (error.code === 'P2003') {
-            return res.status(400).json({ message: 'Caminhão ou motorista não encontrados' });
+            const target = error.meta?.field_name?.includes("truckId") ? "Caminhão" : "Motorista";
+            return res.status(400).json({ message: `${target} não encontrado` });
         }
         return res.status(500).json({ message: 'Erro ao atualizar entrega' });
     }

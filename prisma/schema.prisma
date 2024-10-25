@@ -13,6 +13,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Destinations {
+    Nordeste
+    Sul
+    Amazonia
+    Brasilia
+    Argentina
+    Colombia
+}
+
 model Truck {
   id          Int       @id @default(autoincrement())
   licensePlate String    @unique
@@ -31,7 +40,7 @@ model Delivery {
   id           Int       @id @default(autoincrement())
   type         String
   value        Float
-  destination  String
+  destination  Destinations
   deliveryTime DateTime
   truck        Truck     @relation(fields: [truckId], references: [id])
   truckId      Int

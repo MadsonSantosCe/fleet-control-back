@@ -1,7 +1,10 @@
+import { Destinations } from "@prisma/client";
+
+
 export type DeliveryInput = {
   type: string;
   value: number;
-  destination: string;
+  destination: Destinations;
   deliveryTime: Date;
   truckId: number;
   driverId: number;

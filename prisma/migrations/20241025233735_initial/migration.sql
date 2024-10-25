@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Destinations" AS ENUM ('Nordeste', 'Sul', 'Amazonia', 'Brasilia', 'Argentina', 'Colombia');
+
 -- CreateTable
 CREATE TABLE "Truck" (
     "id" SERIAL NOT NULL,
@@ -21,7 +24,7 @@ CREATE TABLE "Delivery" (
     "id" SERIAL NOT NULL,
     "type" TEXT NOT NULL,
     "value" DOUBLE PRECISION NOT NULL,
-    "destination" TEXT NOT NULL,
+    "destination" "Destinations" NOT NULL,
     "deliveryTime" TIMESTAMP(3) NOT NULL,
     "truckId" INTEGER NOT NULL,
     "driverId" INTEGER NOT NULL,

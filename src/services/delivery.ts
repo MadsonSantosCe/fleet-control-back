@@ -1,9 +1,9 @@
 import { prisma } from "../utils/prisma";
 import { DeliveryInput } from "../interfaces/delivery";
-import { applyDefaultBooleanValues } from "../utils/functions";
+import { applyDeliveryRulesValues } from "../utils/deliveryRules";
 
 export const createDeliveryAsync = async (input: DeliveryInput) => {
-  const deliveryData = applyDefaultBooleanValues(input);
+  const deliveryData = applyDeliveryRulesValues(input);
 
   const newDelivery = await prisma.delivery.create({
     data: {
@@ -29,7 +29,7 @@ export const getAllDeliveriesAsync = async () => {
 };
 
 export const updateDeliveryAsync = async (id: number, input: DeliveryInput) => {
-  const deliveryData = applyDefaultBooleanValues(input);
+  const deliveryData = applyDeliveryRulesValues(input);
 
   const updatedDelivery = await prisma.delivery.update({
     where: { id },
