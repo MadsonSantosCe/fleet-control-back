@@ -1,5 +1,5 @@
 import express, { urlencoded } from "express";
-import truckRoutes from './routers/truckRoutes';
+import mainRoutes from './routers/mainRouters';
 import cors from "cors";
 import helmet from "helmet";
 
@@ -10,7 +10,7 @@ server.use(urlencoded({ extended: true }));
 server.use(express.json());
 
 //routes
-server.use('/api', truckRoutes);
+server.use('/api', mainRoutes);
 
 server.listen(process.env.PORT || 3000, () => {
   console.log(`Server running on ${process.env.BASE_URL}`);

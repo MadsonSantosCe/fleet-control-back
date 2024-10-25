@@ -5,7 +5,6 @@ import {
   createTruckAsync,
   deleteTruckAsync,
   getTruckByIdAsync,
-  getTruckByLicensePlateAsync,
   updateTruckAsync,
 } from '../services/truck';
 
@@ -19,17 +18,14 @@ export const createTruck = async (req: Request, res: Response): Promise<Response
     }
 
     const { licensePlate } = safeData.data;
-
-    const hasTruck = await getTruckByLicensePlateAsync(licensePlate);
-    if (hasTruck) {
-      return res.status(400).json({ message: 'Caminhão já cadastrado' });
-    }
-
     const newTruck = await createTruckAsync(licensePlate);
+
     return res.status(201).json(newTruck);
 
-  } catch (error) {
-    console.error('Erro ao criar o caminhão:', error);
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: 'Placa já cadastrada' });
+    }
     return res.status(500).json({ message: 'Erro ao criar o caminhão' });
   }
 };
@@ -39,8 +35,7 @@ export const getTrucks = async (_req: Request, res: Response): Promise<Response>
     const trucks = await prisma.truck.findMany();
     return res.status(200).json(trucks);
   } catch (error) {
-    console.error('Erro ao buscar caminhões:', error);
-    return res.status(404).json({ message: 'Erro ao buscar caminhões' });
+    return res.status(500).json({ message: 'Erro ao buscar caminhões' });
   }
 };
 
@@ -56,8 +51,7 @@ export const getTruckById = async (req: Request, res: Response): Promise<Respons
     return res.status(200).json(truck);
 
   } catch (error) {
-    console.error('Erro ao buscar caminhão por ID:', error);
-    return res.status(404).json({ message: 'Erro ao buscar caminhão' });
+    return res.status(500).json({ message: 'Erro ao buscar caminhão' });
   }
 };
 
@@ -71,13 +65,20 @@ export const updateTruck = async (req: Request, res: Response): Promise<Response
     }
 
     const { licensePlate } = safeData.data;
-
     const updatedTruck = await updateTruckAsync(id, licensePlate);
+
     return res.status(200).json(updatedTruck);
 
-  } catch (error) {
-    console.error('Erro ao atualizar caminhão:', error);
-    return res.status(400).json({ message: 'Caminhão já cadastrado ou erro de atualização' });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: 'Placa já cadastrada' });
+    }
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Caminhão não encontrado' });
+    }
+    
+    return res.status(500).json({ message: 'Erro ao atualizar o caminhão' });
   }
 };
 
@@ -87,8 +88,12 @@ export const deleteTruck = async (req: Request, res: Response): Promise<Response
     await deleteTruckAsync(id);
     return res.status(204).send();
 
-  } catch (error) {
-    console.error('Erro ao excluir caminhão:', error);
-    return res.status(404).json({ message: 'Caminhão não encontrado ou erro ao excluir' });
+  } catch (error: any) {
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Caminhão não encontrado' });
+    }
+
+    return res.status(500).json({ message: 'Erro ao excluir caminhão' });
   }
 };
