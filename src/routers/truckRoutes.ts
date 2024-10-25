@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { createTruck, getTrucks, getTruckById, updateTruck, deleteTruck } from '../controllers/truckController';
+const truckController = require("../controllers/truck");
 
 const router = Router();
 
-router.post('/truck', createTruck);
-router.get('/trucks', getTrucks);
-router.get('/truck/:id', getTruckById);
-router.put('/truck/:id', updateTruck);
-router.delete('/truck/:id', deleteTruck);
+router.post('/truck', truckController.createTruck);
+router.get('/trucks', truckController.getTrucks);
+router.get('/truck/:id', truckController.getTruckById);
+router.put('/truck/:id', truckController.updateTruck);
+router.delete('/truck/:id', truckController.deleteTruck);
 
 export default router;

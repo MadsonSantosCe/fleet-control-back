@@ -12,9 +12,6 @@ server.use(express.json());
 //routes
 server.use('/api', truckRoutes);
 
-//connection db
-
-
 server.listen(process.env.PORT || 3000, () => {
   console.log(`Server running on ${process.env.BASE_URL}`);
 });
