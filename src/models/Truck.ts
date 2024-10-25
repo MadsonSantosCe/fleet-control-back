@@ -1,6 +1,4 @@
-import { Model } from 'sequelize';
-
-class Truck extends Model {
+class Truck {
   public id!: number;
   public licensePlate!: string;
 }
