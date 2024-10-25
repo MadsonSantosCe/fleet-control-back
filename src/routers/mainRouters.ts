@@ -1,6 +1,8 @@
 import { Router } from 'express';
 const truckController = require("../controllers/truck");
 const driverController = require("../controllers/driver");
+const deliveryController = require("../controllers/delivery");
+
 
 const router = Router();
 
@@ -15,5 +17,11 @@ router.get('/drivers', driverController.getDrivers);
 router.get('/driver/:id', driverController.getDriverById);
 router.put('/driver/:id', driverController.updateDriver);
 router.delete('/driver/:id', driverController.deleteDriver);
+
+router.post('/delivery', deliveryController.createDelivery);
+router.get('/deliveries', deliveryController.getDeliveries);
+router.get('/delivery/:id', deliveryController.getDeliveryById);
+router.put('/delivery/:id', deliveryController.updateDelivery);
+router.delete('/delivery/:id', deliveryController.deleteDelivery);
 
 export default router;

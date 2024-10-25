@@ -18,6 +18,7 @@ export const getDriverBylicenseAsync = async (license: string) => {
 export const getDriverByIdAsync = async (id: string) => {
   return await prisma.driver.findUnique({
     where: { id: Number(id) },
+    include: { deliveries: true },
   });
 };
 

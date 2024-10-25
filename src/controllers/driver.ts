@@ -75,6 +75,10 @@ export const updateDriver = async (req: Request, res: Response): Promise<Respons
     if (error.code === 'P2002') {  
       return res.status(400).json({ message: 'CPF já cadastrado' });
     }
+
+    if (error.code === 'P2025') {  
+      return res.status(400).json({ message: 'Motorista não encontrado' });
+    }
     return res.status(500).json({ message: 'Erro ao atualizar motorista' });
   }
 };
