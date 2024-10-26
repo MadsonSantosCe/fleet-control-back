@@ -14,12 +14,12 @@ datasource db {
 }
 
 enum Destinations {
-    Nordeste
-    Sul
-    Amazonia
-    Brasilia
-    Argentina
-    Colombia
+  Nordeste
+  Sul
+  Amazonia
+  Brasilia
+  Argentina
+  Colombia
 }
 
 enum DeliveryType {
@@ -29,28 +29,28 @@ enum DeliveryType {
 }
 
 model Truck {
-  id          Int       @id @default(autoincrement())
-  licensePlate String    @unique
+  id           Int        @id @default(autoincrement())
+  licensePlate String     @unique
   model        String
-  deliveries  Delivery[]
-}
-
-model Driver {
-  id           Int       @id @default(autoincrement())
-  name         String
-  license      String    @unique
   deliveries   Delivery[]
 }
 
+model Driver {
+  id         Int        @id @default(autoincrement())
+  name       String
+  license    String     @unique
+  deliveries Delivery[]
+}
+
 model Delivery {
-  id           Int       @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   type         DeliveryType
   value        Float
   destination  Destinations
   deliveryTime DateTime
-  truck        Truck     @relation(fields: [truckId], references: [id])
+  truck        Truck        @relation(fields: [truckId], references: [id])
   truckId      Int
-  driver       Driver    @relation(fields: [driverId], references: [id])
+  driver       Driver       @relation(fields: [driverId], references: [id])
   driverId     Int
   insurance    Boolean
   dangerous    Boolean

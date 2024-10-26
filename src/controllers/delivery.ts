@@ -17,7 +17,7 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
         const safeData = deliverySchema.safeParse(req.body);
         if (!safeData.success) {
             return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
-        }
+        }        
 
         const newDelivery = await createDeliveryAsync(safeData.data);
 
@@ -28,6 +28,12 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
             const target = error.meta?.field_name?.includes("truckId") ? "Caminhão" : "Motorista";
             return res.status(400).json({ message: `${target} não encontrado` });
         }
+
+        if (error instanceof Error) {
+            const errorsList = error.message.split(" | ");
+            return res.status(400).json({ errors: errorsList });
+        }
+
         return res.status(500).json({ message: 'Erro ao criar entrega' });
     }
 };
@@ -77,6 +83,12 @@ export const updateDelivery = async (req: Request, res: Response): Promise<Respo
             const target = error.meta?.field_name?.includes("truckId") ? "Caminhão" : "Motorista";
             return res.status(400).json({ message: `${target} não encontrado` });
         }
+
+        if (error instanceof Error) {
+            const errorsList = error.message.split(" | ");
+            return res.status(400).json({ errors: errorsList });
+        }
+
         return res.status(500).json({ message: 'Erro ao atualizar entrega' });
     }
 };
@@ -88,6 +100,9 @@ export const deleteDelivery = async (req: Request, res: Response): Promise<Respo
         return res.status(204).send();
 
     } catch (error: any) {
+        if(error.code === 'P2025'){
+            return res.status(404).json({ message: 'Entrega não encontrada' });
+        }
         return res.status(500).json({ message: 'Erro ao excluir entrega' });
     }
 };
