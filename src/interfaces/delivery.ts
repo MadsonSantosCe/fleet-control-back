@@ -1,8 +1,8 @@
-import { Destinations } from "@prisma/client";
+import { DeliveryType, Destinations } from "@prisma/client";
 
 
 export type DeliveryInput = {
-  type: string;
+  type: DeliveryType;
   value: number;
   destination: Destinations;
   deliveryTime: Date;

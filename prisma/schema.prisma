@@ -22,6 +22,12 @@ enum Destinations {
     Colombia
 }
 
+enum DeliveryType {
+  Combustivel
+  Eletronico
+  Quimico
+}
+
 model Truck {
   id          Int       @id @default(autoincrement())
   licensePlate String    @unique
@@ -38,7 +44,7 @@ model Driver {
 
 model Delivery {
   id           Int       @id @default(autoincrement())
-  type         String
+  type         DeliveryType
   value        Float
   destination  Destinations
   deliveryTime DateTime

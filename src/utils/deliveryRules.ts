@@ -1,4 +1,4 @@
-import { Destinations } from "@prisma/client";
+import { DeliveryType, Destinations } from "@prisma/client";
 import { DeliveryInput } from "../interfaces/delivery";
 
 export const applyDeliveryRulesValues = (input: DeliveryInput) => {
@@ -13,7 +13,7 @@ export const applyDeliveryRulesValues = (input: DeliveryInput) => {
     delivery.valuable = true;
   }
   
-  if (delivery.type === "Combustível") {
+  if (DeliveryType.Combustivel) {
     delivery.dangerous = true;
   }
   

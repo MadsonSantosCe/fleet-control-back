@@ -1,8 +1,8 @@
-import { Destinations } from '@prisma/client';
+import { DeliveryType, Destinations } from '@prisma/client';
 import { z } from 'zod';
 
 export const deliverySchema = z.object({
-  type: z.string().min(1, { message: "Tipo de entrega é obrigatório" }),
+  type: z.nativeEnum(DeliveryType),
   value: z.number().positive({ message: "Valor deve ser positivo" }),
   destination: z.nativeEnum(Destinations),
   deliveryTime: z.string().transform((str) => new Date(str)),
