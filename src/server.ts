@@ -12,6 +12,6 @@ server.use(express.json());
 //routes
 server.use('/api', mainRoutes);
 
-server.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT || 3001, () => {
   console.log(`Server running on ${process.env.BASE_URL}`);
 });
