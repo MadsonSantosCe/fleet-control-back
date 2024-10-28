@@ -14,21 +14,33 @@ const prisma = new PrismaClient();
 export const createDriver = async (req: Request, res: Response): Promise<Response> => {
   try {
     const safeData = driverSchema.safeParse(req.body);
+    console.log(safeData.data);
+
     if (!safeData.success) {
       return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     }
 
-    const { name, cpf } = safeData.data;
+    const { name, license } = safeData.data;
 
-    
-    const newDriver = await createDriverAsync(name, cpf);
+    const newDriver = await createDriverAsync(name, license);
     return res.status(201).json(newDriver);
 
   } catch (error: any) {
-    if (error.code === 'P2002') { 
-      return res.status(400).json({ message: 'CPF já cadastrado' });
+    let errorResponse;
+
+    if (error.code === 'P2002') {
+      errorResponse = {
+        error: { message: 'Erro de validação', details: { cpf: ['CPF já cadastrado'] } }
+      };
+      return res.status(400).json(errorResponse);
     }
-    return res.status(500).json({ message: 'Erro ao criar o motorista' });
+
+    errorResponse = {
+      error: {
+        message: 'Erro ao criar o motorista', details: { general: ['Ocorreu um erro desconhecido ao criar o motorista.'] }
+      }
+    };
+    return res.status(500).json(errorResponse);
   }
 };
 
@@ -66,21 +78,41 @@ export const updateDriver = async (req: Request, res: Response): Promise<Respons
       return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     }
 
-    const { name, cpf } = safeData.data;
+    const { name, license } = safeData.data;
 
-    const updatedDriver = await updateDriverAsync(id, name, cpf);
+    const updatedDriver = await updateDriverAsync(id, name, license);
     return res.status(200).json(updatedDriver);
 
   } catch (error: any) {
-    if (error.code === 'P2002') {  
-      return res.status(400).json({ message: 'CPF já cadastrado' });
+    let errorResponse;
+
+    if (error.code === 'P2002') {
+      errorResponse = {
+        error: {
+          message: 'Erro de validação', details: { cpf: ['CPF já cadastrado'] }
+        }
+      };
+      return res.status(400).json(errorResponse);
     }
 
-    if (error.code === 'P2025') {  
-      return res.status(400).json({ message: 'Motorista não encontrado' });
+    if (error.code === 'P2025') {
+      errorResponse = {
+        error: {
+          message: 'Erro de validação', details: { motorista: ['Motorista não encontrado'] }
+        }
+      };
+      return res.status(400).json(errorResponse);
     }
-    return res.status(500).json({ message: 'Erro ao atualizar motorista' });
+
+    errorResponse = {
+      error: {
+        message: 'Erro ao atualizar o motorista', details: { general: ['Ocorreu um erro desconhecido ao atualizar o motorista.'] }
+      }
+    };
+
+    return res.status(500).json(errorResponse);
   }
+
 };
 
 export const deleteDriver = async (req: Request, res: Response): Promise<Response> => {
