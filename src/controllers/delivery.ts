@@ -17,9 +17,11 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
         const safeData = deliverySchema.safeParse(req.body);
         if (!safeData.success) {
             return res.status(400).json({ error: safeData.error.flatten().fieldErrors });
-        }        
+        }
 
         const newDelivery = await createDeliveryAsync(safeData.data);
+
+        console.log(newDelivery);
 
         return res.status(201).json(newDelivery);
 
@@ -79,17 +81,38 @@ export const updateDelivery = async (req: Request, res: Response): Promise<Respo
         return res.status(200).json(updatedDelivery);
 
     } catch (error: any) {
+        let errorResponse;
+
         if (error.code === 'P2003') {
-            const target = error.meta?.field_name?.includes("truckId") ? "Caminhão" : "Motorista";
-            return res.status(400).json({ message: `${target} não encontrado` });
+            const target = error.meta?.field_name?.includes("truckId") ? "caminhão" : "motorista";
+            errorResponse = {
+                error: {
+                    message: 'Erro de validação',
+                    details: { [target]: [`${target.charAt(0).toUpperCase() + target.slice(1)} não encontrado`] }
+                }
+            };
+            return res.status(400).json(errorResponse);
         }
 
         if (error instanceof Error) {
             const errorsList = error.message.split(" | ");
-            return res.status(400).json({ errors: errorsList });
+            errorResponse = {
+                error: {
+                    message: 'Erro de validação',
+                    details: { general: errorsList }
+                }
+            };
+            return res.status(400).json(errorResponse);
         }
 
-        return res.status(500).json({ message: 'Erro ao atualizar entrega' });
+        errorResponse = {
+            error: {
+                message: 'Erro ao atualizar a entrega',
+                details: { general: ['Ocorreu um erro desconhecido ao atualizar a entrega.'] }
+            }
+        };
+
+        return res.status(500).json(errorResponse);
     }
 };
 
@@ -100,7 +123,7 @@ export const deleteDelivery = async (req: Request, res: Response): Promise<Respo
         return res.status(204).send();
 
     } catch (error: any) {
-        if(error.code === 'P2025'){
+        if (error.code === 'P2025') {
             return res.status(404).json({ message: 'Entrega não encontrada' });
         }
         return res.status(500).json({ message: 'Erro ao excluir entrega' });
