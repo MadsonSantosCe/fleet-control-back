@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { truckSchema } from '../schemas/truck';
+import { truckSchema } from '../schemas/TruckSchema';
 import {
   createTruckAsync,
   deleteTruckAsync,
   getTruckByIdAsync,
   updateTruckAsync,
-} from '../services/truck';
+} from '../services/TruckService';
 
 const prisma = new PrismaClient();
 

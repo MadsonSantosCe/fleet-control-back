@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { deliverySchema } from '../schemas/delivery';
+import { deliverySchema } from '../schemas/DeliverySchema';
 import {
     createDeliveryAsync,
     deleteDeliveryAsync,
     getDeliveryByIdAsync,
     getAllDeliveriesAsync,
     updateDeliveryAsync,
-} from '../services/delivery';
+} from '../services/DeliveryService';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -20,8 +20,6 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
         }
 
         const newDelivery = await createDeliveryAsync(safeData.data);
-
-        console.log(newDelivery);
 
         return res.status(201).json(newDelivery);
 

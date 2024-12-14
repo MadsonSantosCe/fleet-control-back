@@ -1,4 +1,4 @@
-import { DeliveryInput } from "../interfaces/delivery";
+import { DeliveryInput } from "../interfaces/DeliveryInput";
 import { DeliveryType, Destinations } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
