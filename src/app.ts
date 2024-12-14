@@ -9,7 +9,6 @@ app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
-//routes
 app.use('/api', mainRoutes);
 
 export default app;
