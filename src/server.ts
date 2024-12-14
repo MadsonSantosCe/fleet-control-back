@@ -1,17 +1,6 @@
-import express, { urlencoded } from "express";
-import mainRoutes from './routers/mainRouters';
-import cors from "cors";
-import helmet from "helmet";
+import app from "./app";
 
-const server = express();
-server.use(helmet());
-server.use(cors());
-server.use(urlencoded({ extended: true }));
-server.use(express.json());
-
-//routes
-server.use('/api', mainRoutes);
-
-server.listen(process.env.PORT || 3001, () => {
-  console.log(`Server running on ${process.env.BASE_URL}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
