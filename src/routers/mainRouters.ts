@@ -1,7 +1,7 @@
 import { Router } from 'express';
-const truckController = require("../controllers/TruckController");
-const driverController = require("../controllers/DriverController");
-const deliveryController = require("../controllers/DeliveryController");
+const truckController = require("../controllers/truckController");
+const driverController = require("../controllers/driverController");
+const deliveryController = require("../controllers/deliveryController");
 
 const router = Router();
 

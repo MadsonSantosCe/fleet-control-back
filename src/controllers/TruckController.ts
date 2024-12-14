@@ -10,6 +10,26 @@ import {
 
 const prisma = new PrismaClient();
 
+interface ErrorResponse {
+  message: string;
+}
+
+export const handlePrismaError = (error: any): ErrorResponse => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "Placa já cadastrada" };
+    case "P2025":
+      return { message: "Veículo não encontrado" };
+    case "P2003":
+      return {
+        message:
+          "Este veículo não pode ser excluído porque possui entregas pendentes",
+      };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
+  }
+};
+
 export const createTruck = async (
   req: Request,
   res: Response
@@ -17,23 +37,20 @@ export const createTruck = async (
   try {
     const safeData = truckSchema.safeParse(req.body);
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ message: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
-    const { licensePlate, model } = safeData.data;
-    const newTruck = await createTruckAsync(licensePlate, model);
-
+    const newTruck = await createTruckAsync(
+      safeData.data.licensePlate,
+      safeData.data.model
+    );
     return res.status(201).json(newTruck);
   } catch (error: any) {
-    if (error.code === "P2002") {
-      return res.status(400).json({ message: "Placa já cadastrada" });
-    }
-
-    return res
-      .status(500)
-      .json({ message: "Ocorreu um erro desconhecido ao cadastrar o veículo" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -45,7 +62,7 @@ export const getTrucks = async (
     const trucks = await prisma.truck.findMany();
     return res.status(200).json(trucks);
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao buscar Veículos" });
+    return res.status(500).json({ message: "Erro ao buscar veículos" });
   }
 };
 
@@ -54,16 +71,13 @@ export const getTruckById = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.params;
-    const truck = await getTruckByIdAsync(id);
-
+    const truck = await getTruckByIdAsync(req.params.id);
     if (!truck) {
       return res.status(404).json({ message: "Veículo não encontrado" });
     }
-
     return res.status(200).json(truck);
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao buscar Veículo" });
+    return res.status(500).json({ message: "Erro ao buscar veículo" });
   }
 };
 
@@ -72,34 +86,23 @@ export const updateTruck = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.params;
-
     const safeData = truckSchema.safeParse(req.body);
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ error: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
-    const { licensePlate, model } = safeData.data;
-    const updatedTruck = await updateTruckAsync(id, licensePlate, model);
-
+    const updatedTruck = await updateTruckAsync(
+      req.params.id,
+      safeData.data.licensePlate,
+      safeData.data.model
+    );
     return res.status(200).json(updatedTruck);
   } catch (error: any) {
-
-    if (error.code === "P2002") {
-      return res.status(400).json({ message: "Placa já cadastrada" });
-    }
-
-    if (error.code === "P2025") {
-      return res.status(400).json({ message: "Veículo não encontrado" });
-    }
-
-    return res
-      .status(500)
-      .json({
-        message: "Ocorreu um erro desconhecido ao atualizar o veículo.",
-      });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -108,23 +111,10 @@ export const deleteTruck = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.params;
-    await deleteTruckAsync(id);
+    await deleteTruckAsync(req.params.id);
     return res.status(204).send();
   } catch (error: any) {
-    if (error.code === "P2025") {
-      return res.status(404).json({ message: "Veículo não encontrado" });
-    }
-
-    if (error.code === "P2003") {
-      return res
-        .status(404)
-        .json({
-          message:
-            "Este veículo não pode ser excluído porque possui entregas pendentes",
-        });
-    }
-
-    return res.status(500).json({ message: "Erro ao excluir Veículo" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };

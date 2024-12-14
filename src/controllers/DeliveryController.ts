@@ -1,15 +1,32 @@
 import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 import { deliverySchema } from "../schemas/deliverySchema";
 import {
   createDeliveryAsync,
   deleteDeliveryAsync,
-  getDeliveryByIdAsync,
   getAllDeliveriesAsync,
+  getDeliveryByIdAsync,
   updateDeliveryAsync,
 } from "../services/deliveryService";
-import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+interface ErrorResponse {
+  message: string;
+}
+
+export const handlePrismaError = (error: any): ErrorResponse => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "Entrega já cadastrada" };
+    case "P2025":
+      return { message: "Entrega não encontrada" };
+    case "P2003":
+      return { message: "Erro de referência: verifique motorista e caminhão" };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
+  }
+};
 
 export const createDelivery = async (
   req: Request,
@@ -18,27 +35,17 @@ export const createDelivery = async (
   try {
     const safeData = deliverySchema.safeParse(req.body);
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ error: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
     const newDelivery = await createDeliveryAsync(safeData.data);
-
     return res.status(201).json(newDelivery);
   } catch (error: any) {
-    if (error.code === "P2003") {
-      const target = error.meta?.field_name?.includes("truckId")
-        ? "Caminhão"
-        : "Motorista";
-      return res.status(400).json({ message: `${target} não encontrado` });
-    }
-
-    if (error instanceof Error) {
-      return res.status(400).json({ message: `${error.message}` });
-    }
-
-    return res.status(500).json({ message: "Erro ao criar entrega" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -61,11 +68,9 @@ export const getDeliveryById = async (
   try {
     const { id } = req.params;
     const delivery = await getDeliveryByIdAsync(Number(id));
-
     if (!delivery) {
       return res.status(404).json({ message: "Entrega não encontrada" });
     }
-
     return res.status(200).json(delivery);
   } catch (error) {
     return res.status(500).json({ message: "Erro ao buscar entrega" });
@@ -80,32 +85,20 @@ export const updateDelivery = async (
     const { id } = req.params;
     const safeData = deliverySchema.safeParse(req.body);
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ message: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
     const updatedDelivery = await updateDeliveryAsync(
       Number(id),
       safeData.data
     );
-
     return res.status(200).json(updatedDelivery);
   } catch (error: any) {
-    if (error.code === "P2003") {
-      const target = error.meta?.field_name?.includes("truckId")
-        ? "Caminhão"
-        : "Motorista";
-      return res.status(400).json({ message: `${target} não encontrado` });
-    }
-
-    if (error instanceof Error) {
-      return res.status(400).json({ message: `${error.message}` });
-    }
-
-    return res
-      .status(500)
-      .json({ message: "Ocorreu um erro desconhecido ao atualizar a entrega" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -118,9 +111,7 @@ export const deleteDelivery = async (
     await deleteDeliveryAsync(Number(id));
     return res.status(204).send();
   } catch (error: any) {
-    if (error.code === "P2025") {
-      return res.status(404).json({ message: "Entrega não encontrada" });
-    }
-    return res.status(500).json({ message: "Erro ao excluir entrega" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };

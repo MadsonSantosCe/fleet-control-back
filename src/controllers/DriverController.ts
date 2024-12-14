@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 import { driverSchema } from "../schemas/driverSchema";
 import {
   createDriverAsync,
@@ -6,9 +7,28 @@ import {
   getDriverByIdAsync,
   updateDriverAsync,
 } from "../services/driverService";
-import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+interface ErrorResponse {
+  message: string;
+}
+
+export const handlePrismaError = (error: any): ErrorResponse => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "CPF já cadastrado" };
+    case "P2025":
+      return { message: "Motorista não encontrado" };
+    case "P2003":
+      return {
+        message:
+          "Este motorista não pode ser excluído porque possui entregas pendentes",
+      };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
+  }
+};
 
 export const createDriver = async (
   req: Request,
@@ -16,26 +36,19 @@ export const createDriver = async (
 ): Promise<Response> => {
   try {
     const safeData = driverSchema.safeParse(req.body);
-
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ message: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
     const { name, license } = safeData.data;
-
     const newDriver = await createDriverAsync(name, license);
     return res.status(201).json(newDriver);
   } catch (error: any) {
-    let errorResponse;
-
-    if (error.code === "P2002") {
-      return res.status(400).json({ message: "CPF já cadastrado" });
-    }
-    return res
-      .status(500)
-      .json({ message: "Ocorreu um erro desconhecido ao criar o motorista" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -47,9 +60,7 @@ export const getDrivers = async (
     const drivers = await prisma.driver.findMany();
     return res.status(200).json(drivers);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Ocorreu um erro desconhecido ao buscar motoristas" });
+    return res.status(500).json({ message: "Erro ao buscar motoristas" });
   }
 };
 
@@ -58,13 +69,10 @@ export const getDriverById = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.params;
-    const driver = await getDriverByIdAsync(id);
-
+    const driver = await getDriverByIdAsync(req.params.id);
     if (!driver) {
       return res.status(404).json({ message: "Motorista não encontrado" });
     }
-
     return res.status(200).json(driver);
   } catch (error) {
     return res.status(500).json({ message: "Erro ao buscar motorista" });
@@ -80,9 +88,10 @@ export const updateDriver = async (
 
     const safeData = driverSchema.safeParse(req.body);
     if (!safeData.success) {
-      return res
-        .status(400)
-        .json({ error: safeData.error.flatten().fieldErrors });
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: safeData.error.flatten().fieldErrors,
+      });
     }
 
     const { name, license } = safeData.data;
@@ -90,17 +99,8 @@ export const updateDriver = async (
     const updatedDriver = await updateDriverAsync(id, name, license);
     return res.status(200).json(updatedDriver);
   } catch (error: any) {
-    if (error.code === "P2002") {
-      return res.status(400).json({ message: "CPF já cadastrado" });
-    }
-
-    if (error.code === "P2025") {
-      return res.status(400).json({ message: "Motorista não encontrado" });
-    }
-
-    return res.status(500).json({
-      message: "Ocorreu um erro desconhecido ao atualizar o motorista",
-    });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };
 
@@ -109,23 +109,10 @@ export const deleteDriver = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.params;
-    await deleteDriverAsync(id);
+    await deleteDriverAsync(req.params.id);
     return res.status(204).send();
   } catch (error: any) {
-    if (error.code === "P2025") {
-      return res.status(404).json({ message: "Motorista não encontrado" });
-    }
-
-    if (error.code === "P2003") {
-      return res
-        .status(404)
-        .json({
-          message:
-            "Este motorista não pode ser excluído porque possui entregas pendentes",
-        });
-    }
-
-    return res.status(500).json({ message: "Erro ao excluir motorista" });
+    const errorResponse = handlePrismaError(error);
+    return res.status(400).json(errorResponse);
   }
 };

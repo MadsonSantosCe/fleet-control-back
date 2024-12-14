@@ -1,5 +1,5 @@
 import express, { urlencoded } from "express";
-import mainRoutes from './routers/mainRouters';
+import mainRoutes from "./routers/mainRouters";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -9,6 +9,6 @@ app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/api', mainRoutes);
+app.use("/api", mainRoutes);
 
 export default app;
