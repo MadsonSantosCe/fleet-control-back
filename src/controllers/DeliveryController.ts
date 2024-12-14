@@ -35,8 +35,7 @@ export const createDelivery = async (
     }
 
     if (error instanceof Error) {
-      const errorsList = error.message.split(" | ");
-      return res.status(400).json({ errors: errorsList });
+      return res.status(400).json({ message: `${error.message}` });
     }
 
     return res.status(500).json({ message: "Erro ao criar entrega" });
@@ -93,7 +92,6 @@ export const updateDelivery = async (
 
     return res.status(200).json(updatedDelivery);
   } catch (error: any) {
-
     if (error.code === "P2003") {
       const target = error.meta?.field_name?.includes("truckId")
         ? "Caminhão"
@@ -102,9 +100,9 @@ export const updateDelivery = async (
     }
 
     if (error instanceof Error) {
-      const errorsList = error.message.split(" | ");
-      return res.status(400).json({ message: `${errorsList}` });
+      return res.status(400).json({ message: `${error.message}` });
     }
+
     return res
       .status(500)
       .json({ message: "Ocorreu um erro desconhecido ao atualizar a entrega" });

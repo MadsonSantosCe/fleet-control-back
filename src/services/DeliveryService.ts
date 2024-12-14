@@ -97,27 +97,22 @@ const getMonthRange = () => {
 };
 
 const checkDeliveryLimits = async (truckId: number, driverId: number, destination: Destinations) => {
-  const errors: string[] = [];
 
   const deliveryCount = await countTruckDeliveriesThisMonth(truckId);
   if (deliveryCount >= 4) {
-    errors.push("O caminhão já possui 4 entregas no mês atual e não pode receber mais.");
+    throw new Error("O caminhão já possui quatro entregas no mês atual e não pode receber mais");
   }
 
   const driverDeliveries = await countDriverDeliveriesThisMonth(driverId);
   if (driverDeliveries >= 2) {
-    errors.push("Este motorista já atingiu o limite de 2 entregas por mês.");
+    throw new Error("Este motorista já atingiu o limite de duas entregas por mês");
   }
 
   if (destination === Destinations.Nordeste) {
     const hasNortheastDelivery = await checkDriverNortheastDeliveryThisMonth(driverId);
     if (hasNortheastDelivery) {
-      errors.push("Este motorista já fez uma entrega para o Nordeste no mês atual");
+      throw new Error("Este motorista já fez uma entrega para o Nordeste no mês atual");
     }
-  }
-
-  if (errors.length > 0) {    
-    throw new Error(errors.join(" | "));
   }
 };
 
