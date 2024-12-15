@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { deliverySchema } from "../schemas/deliverySchema";
 import {
   createDeliveryAsync,
@@ -44,8 +44,16 @@ export const createDelivery = async (
     const newDelivery = await createDeliveryAsync(safeData.data);
     return res.status(201).json(newDelivery);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    if (error instanceof Error) {
+      return res.status(400).json({ message: `${error.message}` });
+    }
+
+    return res.status(500).json({ message: "Erro ao criar entrega" });
   }
 };
 
@@ -97,8 +105,16 @@ export const updateDelivery = async (
     );
     return res.status(200).json(updatedDelivery);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    if (error instanceof Error) {
+      return res.status(400).json({ message: `${error.message}` });
+    }
+
+    return res.status(500).json({ message: "Erro ao criar entrega" });
   }
 };
 
@@ -111,7 +127,11 @@ export const deleteDelivery = async (
     await deleteDeliveryAsync(Number(id));
     return res.status(204).send();
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao deletar entrega" });
   }
 };

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { truckSchema } from "../schemas/truckSchema";
 import {
   createTruckAsync,
@@ -49,8 +49,12 @@ export const createTruck = async (
     );
     return res.status(201).json(newTruck);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao deletar o veículo" });
   }
 };
 
@@ -101,8 +105,12 @@ export const updateTruck = async (
     );
     return res.status(200).json(updatedTruck);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao deletar o veículo" });
   }
 };
 
@@ -114,7 +122,11 @@ export const deleteTruck = async (
     await deleteTruckAsync(req.params.id);
     return res.status(204).send();
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao deletar o veículo" });
   }
 };

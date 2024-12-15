@@ -49,7 +49,9 @@ export const deleteDeliveryAsync = async (id: number): Promise<void> => {
   });
 };
 
-export const countTruckDeliveriesThisMonth = async (truckId: number): Promise<number> => {
+export const countTruckDeliveriesThisMonth = async (
+  truckId: number
+): Promise<number> => {
   const { startOfMonth, endOfMonth } = getMonthRange();
 
   return prisma.delivery.count({
@@ -60,8 +62,9 @@ export const countTruckDeliveriesThisMonth = async (truckId: number): Promise<nu
   });
 };
 
-
-export const countDriverDeliveriesThisMonth = async (driverId: number): Promise<number> => {
+export const countDriverDeliveriesThisMonth = async (
+  driverId: number
+): Promise<number> => {
   const { startOfMonth, endOfMonth } = getMonthRange();
 
   return prisma.delivery.count({
@@ -72,8 +75,9 @@ export const countDriverDeliveriesThisMonth = async (driverId: number): Promise<
   });
 };
 
-
-export const checkDriverNortheastDeliveryThisMonth = async (driverId: number): Promise<boolean> => {
+export const checkDriverNortheastDeliveryThisMonth = async (
+  driverId: number
+): Promise<boolean> => {
   const { startOfMonth, endOfMonth } = getMonthRange();
 
   const northeastDelivery = await prisma.delivery.findFirst({
@@ -87,31 +91,48 @@ export const checkDriverNortheastDeliveryThisMonth = async (driverId: number): P
   return !!northeastDelivery;
 };
 
-
 const getMonthRange = () => {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59
+  );
 
   return { startOfMonth, endOfMonth };
 };
 
-const checkDeliveryLimits = async (truckId: number, driverId: number, destination: Destinations) => {
-
+const checkDeliveryLimits = async (
+  truckId: number,
+  driverId: number,
+  destination: Destinations
+) => {
   const deliveryCount = await countTruckDeliveriesThisMonth(truckId);
   if (deliveryCount >= 4) {
-    throw new Error("O caminhão já possui quatro entregas no mês atual e não pode receber mais");
+    throw new Error(
+      "O caminhão já possui quatro entregas no mês atual e não pode receber mais"
+    );
   }
 
   const driverDeliveries = await countDriverDeliveriesThisMonth(driverId);
   if (driverDeliveries >= 2) {
-    throw new Error("Este motorista já atingiu o limite de duas entregas por mês");
+    throw new Error(
+      "Este motorista já atingiu o limite de duas entregas por mês"
+    );
   }
 
   if (destination === Destinations.Nordeste) {
-    const hasNortheastDelivery = await checkDriverNortheastDeliveryThisMonth(driverId);
+    const hasNortheastDelivery = await checkDriverNortheastDeliveryThisMonth(
+      driverId
+    );
     if (hasNortheastDelivery) {
-      throw new Error("Este motorista já fez uma entrega para o Nordeste no mês atual");
+      throw new Error(
+        "Este motorista já fez uma entrega para o Nordeste no mês atual"
+      );
     }
   }
 };
@@ -143,7 +164,7 @@ export const applyUpdateDeliveryRules = (input: DeliveryInput) => {
   applyDangerousRules(delivery);
 
   return delivery;
-}
+};
 
 const applyValueRules = (delivery: DeliveryInput) => {
   if (delivery.value > 30000) {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { driverSchema } from "../schemas/driverSchema";
 import {
   createDriverAsync,
@@ -47,8 +47,12 @@ export const createDriver = async (
     const newDriver = await createDriverAsync(name, license);
     return res.status(201).json(newDriver);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao criar o motorista" });
   }
 };
 
@@ -60,7 +64,7 @@ export const getDrivers = async (
     const drivers = await prisma.driver.findMany();
     return res.status(200).json(drivers);
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao buscar motoristas" });
+    return res.status(500).json({ message: "Erro ao buscar os motoristas" });
   }
 };
 
@@ -75,7 +79,7 @@ export const getDriverById = async (
     }
     return res.status(200).json(driver);
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao buscar motorista" });
+    return res.status(500).json({ message: "Erro ao buscar o motorista" });
   }
 };
 
@@ -99,8 +103,12 @@ export const updateDriver = async (
     const updatedDriver = await updateDriverAsync(id, name, license);
     return res.status(200).json(updatedDriver);
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao atualizar o motorista" });
   }
 };
 
@@ -112,7 +120,11 @@ export const deleteDriver = async (
     await deleteDriverAsync(req.params.id);
     return res.status(204).send();
   } catch (error: any) {
-    const errorResponse = handlePrismaError(error);
-    return res.status(400).json(errorResponse);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const errorResponse = handlePrismaError(error);
+      return res.status(400).json(errorResponse);
+    }
+
+    return res.status(500).json({ message: "Erro ao deletar o motorista" });
   }
 };
