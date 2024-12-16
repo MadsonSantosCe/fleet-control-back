@@ -10,6 +10,26 @@ import {
 
 const prisma = new PrismaClient();
 
+interface ErrorResponse {
+  message: string;
+}
+
+export const handlePrismaError = (error: any): ErrorResponse => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "Placa já cadastrada" };
+    case "P2025":
+      return { message: "Veículo não encontrado" };
+    case "P2003":
+      return {
+        message:
+          "Este veículo não pode ser excluído porque possui entregas pendentes",
+      };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
+  }
+};
+
 export const createTruck = async (
   req: Request,
   res: Response
@@ -31,7 +51,7 @@ export const createTruck = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json({ message: `${errorResponse}`});
+      return res.status(400).json(errorResponse);;
     }
 
     return res.status(500).json({ message: "Erro ao deletar o veículo" });
@@ -87,7 +107,7 @@ export const updateTruck = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json({ message: `${errorResponse}`});
+      return res.status(400).json(errorResponse);;
     }
 
     return res.status(500).json({ message: "Erro ao deletar o veículo" });
@@ -104,25 +124,9 @@ export const deleteTruck = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json({ message: `${errorResponse}`});
+      return res.status(400).json(errorResponse);
     }
 
     return res.status(500).json({ message: "Erro ao deletar o veículo" });
-  }
-};
-
-export const handlePrismaError = (error: any): { message: string } => {
-  switch (error.code) {
-    case "P2002":
-      return { message: "Placa já cadastrada" };
-    case "P2025":
-      return { message: "Veículo não encontrado" };
-    case "P2003":
-      return {
-        message:
-          "Este veículo não pode ser excluído porque possui entregas pendentes",
-      };
-    default:
-      return { message: "Ocorreu um erro desconhecido" };
   }
 };
