@@ -10,26 +10,6 @@ import {
 
 const prisma = new PrismaClient();
 
-interface ErrorResponse {
-  message: string;
-}
-
-export const handlePrismaError = (error: any): ErrorResponse => {
-  switch (error.code) {
-    case "P2002":
-      return { message: "CPF já cadastrado" };
-    case "P2025":
-      return { message: "Motorista não encontrado" };
-    case "P2003":
-      return {
-        message:
-          "Este motorista não pode ser excluído porque possui entregas pendentes",
-      };
-    default:
-      return { message: "Ocorreu um erro desconhecido" };
-  }
-};
-
 export const createDriver = async (
   req: Request,
   res: Response
@@ -49,7 +29,7 @@ export const createDriver = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     return res.status(500).json({ message: "Erro ao criar o motorista" });
@@ -105,7 +85,7 @@ export const updateDriver = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     return res.status(500).json({ message: "Erro ao atualizar o motorista" });
@@ -122,9 +102,25 @@ export const deleteDriver = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     return res.status(500).json({ message: "Erro ao deletar o motorista" });
+  }
+};
+
+export const handlePrismaError = (error: any): { message: string } => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "CPF já cadastrado" };
+    case "P2025":
+      return { message: "Motorista não encontrado" };
+    case "P2003":
+      return {
+        message:
+          "Este motorista não pode ser excluído porque possui entregas pendentes",
+      };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
   }
 };

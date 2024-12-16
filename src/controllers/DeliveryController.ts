@@ -11,23 +11,6 @@ import {
 
 const prisma = new PrismaClient();
 
-interface ErrorResponse {
-  message: string;
-}
-
-export const handlePrismaError = (error: any): ErrorResponse => {
-  switch (error.code) {
-    case "P2002":
-      return { message: "Entrega já cadastrada" };
-    case "P2025":
-      return { message: "Entrega não encontrada" };
-    case "P2003":
-      return { message: "Erro de referência: verifique motorista e caminhão" };
-    default:
-      return { message: "Ocorreu um erro desconhecido" };
-  }
-};
-
 export const createDelivery = async (
   req: Request,
   res: Response
@@ -46,7 +29,7 @@ export const createDelivery = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     if (error instanceof Error) {
@@ -107,7 +90,7 @@ export const updateDelivery = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     if (error instanceof Error) {
@@ -129,9 +112,20 @@ export const deleteDelivery = async (
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const errorResponse = handlePrismaError(error);
-      return res.status(400).json(errorResponse);
+      return res.status(400).json({ message: `${errorResponse}`});
     }
 
     return res.status(500).json({ message: "Erro ao deletar entrega" });
+  }
+};
+
+export const handlePrismaError = (error: any): { message: string } => {
+  switch (error.code) {
+    case "P2002":
+      return { message: "Entrega já cadastrada" };
+    case "P2025":
+      return { message: "Entrega não encontrada" };
+    default:
+      return { message: "Ocorreu um erro desconhecido" };
   }
 };
