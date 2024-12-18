@@ -7,7 +7,7 @@ import {
   getAllDeliveriesAsync,
   getDeliveryByIdAsync,
   updateDeliveryAsync,
-} from "../services/DeliveryService";
+} from "../services/deliveryService";
 
 const prisma = new PrismaClient();
 
