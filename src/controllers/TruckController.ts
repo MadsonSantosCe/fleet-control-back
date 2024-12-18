@@ -17,9 +17,9 @@ interface ErrorResponse {
 export const handlePrismaError = (error: any): ErrorResponse => {
   switch (error.code) {
     case "P2002":
-      return { message: "Placa já cadastrada" };
+      return { message: "Placa já cadastrada!" };
     case "P2025":
-      return { message: "Veículo não encontrado" };
+      return { message: "Veículo não encontrado!" };
     case "P2003":
       return {
         message:

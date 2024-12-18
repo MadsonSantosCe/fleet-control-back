@@ -7,7 +7,7 @@ import {
   getAllDeliveriesAsync,
   getDeliveryByIdAsync,
   updateDeliveryAsync,
-} from "../services/deliveryService";
+} from "../services/DeliveryService";
 
 const prisma = new PrismaClient();
 
@@ -18,9 +18,9 @@ interface ErrorResponse {
 export const handlePrismaError = (error: any): ErrorResponse => {
   switch (error.code) {
     case "P2002":
-      return { message: "Entrega já cadastrada" };
+      return { message: "Entrega já cadastrada!" };
     case "P2025":
-      return { message: "Entrega não encontrada" };
+      return { message: "Entrega não encontrada!" };
     case "P2003":
       return { message: "Erro de referência: verifique motorista e caminhão" };
     default:

@@ -17,9 +17,9 @@ interface ErrorResponse {
 export const handlePrismaError = (error: any): ErrorResponse => {
   switch (error.code) {
     case "P2002":
-      return { message: "CPF já cadastrado" };
+      return { message: "CNH já cadastrada!" };
     case "P2025":
-      return { message: "Motorista não encontrado" };
+      return { message: "Motorista não encontrado!" };
     case "P2003":
       return {
         message:
